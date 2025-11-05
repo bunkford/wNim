@@ -13,7 +13,7 @@
 include pragma
 import tables
 import winim/[utils, winstr], winim/inc/[windef, winbase], winimx
-import wTypes, wMacros, wHelper, consts/[wColors, wKeyCodes]
+import wTypes, wMacros, wHelper, wDarkMode, consts/[wColors, wKeyCodes]
 
 # Every wNim app needs wTypes, so export these in wApp to the user for convenience.
 export wTypes, wColors, wKeyCodes
@@ -88,6 +88,10 @@ proc App*(dpiAware: wDpiAware = wNoDpiAware): wApp {.discardable.} =
   result.mWinVersion = wGetWinVersionImpl()
   result.mUsingTheme = usingTheme()
   result.mWaitMessage = true
+  
+  # Initialize dark mode support
+  result.mDarkModeSupported = initDarkMode()
+  result.mDarkModeEnabled = isDarkModeEnabled()
 
   # add last, run first
   try: {.gcsafe.}: # to avoid observable warning
@@ -119,6 +123,21 @@ proc wAppGetDpi(): int {.shield.} =
     ReleaseDC(0, hdc)
 
   result = wBaseApp.mDpi
+
+proc isDarkModeSupported*(self: wApp): bool {.validate, property, inline.} =
+  ## Returns true if dark mode is supported on this system.
+  result = self.mDarkModeSupported
+
+proc isDarkModeEnabled*(self: wApp): bool {.validate, property, inline.} =
+  ## Returns true if dark mode is currently enabled by the user.
+  result = self.mDarkModeEnabled
+
+proc updateDarkModeStatus*(self: wApp) {.validate.} =
+  ## Update the cached dark mode status based on current system settings.
+  ## This should be called when receiving WM_SETTINGCHANGE messages.
+  if self.mDarkModeSupported:
+    updateDarkModeStatus()
+    self.mDarkModeEnabled = wDarkMode.isDarkModeEnabled()
 
 proc wAppHasTopLevelWindow(): bool {.inline, shield.} =
   App()

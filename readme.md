@@ -113,6 +113,9 @@ For Windows XP compatibility, add:
 
 To compile wNim with the [Tiny C Compiler](https://bellard.org/tcc/) or to add resource files, take a look at https://github.com/khchen/winim/tree/master/tcclib
 
+## Dark Mode Support
+wNim now supports Windows 10 dark mode for window title bars. The feature automatically detects and applies the user's system theme preference on Windows 10 build 17763 or later. See [docs/darkmode.md](docs/darkmode.md) for more information.
+
 ## Q & A
 ### Q: Why did I start this project?
 At first, I just wanted to write some code to test and prove my Winim library.

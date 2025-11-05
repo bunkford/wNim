@@ -48,7 +48,7 @@
 ##   - `wCommandEvent <wCommandEvent.html>`_  - wEvent_Menu
 
 include pragma
-import wBase, wWindow, wAcceleratorTable
+import wBase, wWindow, wAcceleratorTable, wDarkMode
 export wWindow, wAcceleratorTable
 
 const
@@ -96,6 +96,17 @@ proc setIcon*(self: wFrame, icon: wIcon) {.validate, property.} =
 proc getIcon*(self: wFrame): wIcon {.validate, property, inline.} =
   ## Returns the standard icon.
   result = self.mIcon
+
+proc enableDarkMode*(self: wFrame, enable = true) {.validate.} =
+  ## Enable or disable dark mode for this frame's title bar.
+  ## Only works on Windows 10 build 17763 or later.
+  discard allowDarkModeForWindow(self.mHwnd, enable)
+  refreshTitleBarThemeColor(self.mHwnd)
+
+proc refreshDarkMode*(self: wFrame) {.validate.} =
+  ## Refresh the dark mode appearance for this frame's title bar.
+  ## Call this when the system theme changes.
+  refreshTitleBarThemeColor(self.mHwnd)
 
 proc minimize*(self: wFrame, flag = true) {.validate.} =
   ## Minimizes or restores the frame
@@ -414,6 +425,13 @@ proc wFrame_OnMenuHighlight(event: wEvent) =
     SendMessage(self.mStatusBar.mHwnd, SB_SETTEXT, LOBYTE(self.mStatusBar.mHelpIndex), &T(text))
     processed = true
 
+proc wFrame_OnSettingChange(event: wEvent) =
+  # Handle WM_SETTINGCHANGE for dark mode theme changes
+  let self = wBase.wFrame event.mWindow
+  if isColorSchemeChangeMessage(event.mMsg, event.mLparam):
+    # Update dark mode status when color scheme changes
+    self.refreshDarkMode()
+
 wClass(wFrame of wWindow):
 
   method release*(self: wFrame) =
@@ -432,3 +450,9 @@ wClass(wFrame of wWindow):
     self.hardConnect(wEvent_Size, wFrame_OnSize)
     self.hardConnect(wEvent_SetFocus, wFrame_OnSetFocus)
     self.hardConnect(wEvent_MenuHighlight, wFrame_OnMenuHighlight)
+    self.systemConnect(WM_SETTINGCHANGE, wFrame_OnSettingChange)
+    
+    # Enable dark mode support if available
+    if wDarkMode.isDarkModeSupported():
+      discard allowDarkModeForWindow(self.mHwnd, true)
+      refreshTitleBarThemeColor(self.mHwnd)

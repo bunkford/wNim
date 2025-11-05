@@ -1,3 +1,12 @@
+Version 1.0.1 (Unreleased)
+--------------
+* Added Windows 10 dark mode support for window title bars
+* New methods in wFrame: enableDarkMode(), refreshDarkMode()
+* New methods in wApp: isDarkModeSupported(), isDarkModeEnabled(), updateDarkModeStatus()
+* Automatic detection and application of dark mode on Windows 10 build 17763+
+* WM_SETTINGCHANGE message handling for dynamic theme changes
+* New example: darkmode.nim
+
 Version 1.0.0
 --------------
 * Since I no longer plan to add new GUI controls and features, and wNim has been stable for a while, I have decided to bump the version to 1.0.0. Going forward, unless there are unexpected issues, wNim will only receive bug fixes or updates for compatibility with new compilers.

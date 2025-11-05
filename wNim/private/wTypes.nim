@@ -184,6 +184,8 @@ type
     mDpi*: int
     mWinVersion*: float
     mUsingTheme*: bool
+    mDarkModeSupported*: bool
+    mDarkModeEnabled*: bool
 
   wEventBase* = ref object of RootObj
 
