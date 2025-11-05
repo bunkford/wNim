@@ -73,9 +73,40 @@ The title bar automatically updates when the system theme changes via WM_SETTING
 frame.refreshDarkMode()
 ```
 
+## Theming the Client Area
+
+While the title bar is automatically themed, the client area controls require manual theming. You can set background and foreground colors for controls to match the dark/light theme:
+
+```nim
+# Define color schemes
+const
+  DarkBackground = 0x202020      # Dark gray background
+  DarkForeground = 0xFFFFFF      # White text
+  LightBackground = 0xF0F0F0     # Light gray background
+  LightForeground = 0x000000     # Black text
+
+proc applyTheme(isDark: bool) =
+  let bgColor = if isDark: DarkBackground else: LightBackground
+  let fgColor = if isDark: DarkForeground else: LightForeground
+  
+  # Apply to controls
+  panel.backgroundColor = bgColor
+  panel.foregroundColor = fgColor
+  textCtrl.backgroundColor = bgColor
+  textCtrl.foregroundColor = fgColor
+  # ... apply to other controls
+  
+  # Update title bar
+  frame.enableDarkMode(isDark)
+```
+
 ## Example
 
-See `examples/darkmode.nim` for a complete working example.
+See `examples/darkmode.nim` for a comprehensive working example that demonstrates:
+- Dark mode title bar support
+- Manual theming of client area controls
+- Various control types (buttons, checkboxes, text inputs, etc.)
+- Toggling between dark and light modes
 
 ## Implementation Details
 
@@ -90,9 +121,10 @@ Key features:
 
 ## Known Limitations
 
-1. Only the title bar and window border are affected. The client area (content) is not automatically themed.
+1. The title bar and window border are automatically themed, but the client area (content) requires manual color application through `backgroundColor` and `foregroundColor` properties.
 2. Requires Windows 10 build 17763 or later. Earlier Windows versions are not supported.
 3. The implementation uses undocumented APIs that may change in future Windows versions.
+4. Some native Windows controls have built-in rendering that may not fully respect custom colors in all cases.
 
 ## Contributing
 
