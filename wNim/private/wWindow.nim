@@ -889,7 +889,12 @@ proc updateThemeColorsRecursive*(self: wWindow, forceDark: int = -1) {.validate.
   ##   forceDark: If -1 (default), uses current system dark mode state.
   ##              If 0, forces light mode colors. If 1, forces dark mode colors.
   if isDarkModeSupported():
-    let isDark = if forceDark == -1: isDarkModeEnabled() elif forceDark == 1: true else: false
+    # Determine which theme to use
+    let isDark = 
+      case forceDark
+      of 1: true
+      of 0: false
+      else: isDarkModeEnabled()
     
     # Only update if window is using default colors (checking against current dark/light defaults)
     # This preserves any custom colors set by the application

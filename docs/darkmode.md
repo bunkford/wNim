@@ -105,18 +105,6 @@ panel.foregroundColor = 0x00FF00  # Green text
 
 The framework provides standard color constants that you can use:
 
-## Example
-
-See `examples/darkmode.nim` for a comprehensive working example that demonstrates:
-- Dark mode title bar support
-- Manual theming of client area controls
-- Various control types (buttons, checkboxes, text inputs, etc.)
-- Toggling between dark and light modes
-
-## Default Dark/Light Color Constants
-
-The framework provides standard color constants that you can use:
-
 ```nim
 import wNim
 
@@ -140,7 +128,7 @@ See `examples/darkmode.nim` for a comprehensive working example that demonstrate
 - Automatic dark mode title bar support
 - Automatic theming of client area controls
 - Various control types (buttons, checkboxes, text inputs, etc.)
-- Dynamic theme switching
+- Manual toggle for demonstration purposes
 
 ## Implementation Details
 

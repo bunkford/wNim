@@ -273,21 +273,21 @@ const
   wLightModeForeground* = 0x000000     # Black text
   wLightModeControl* = 0xFFFFFF        # White for controls
 
-proc getDefaultBackgroundColor*(): int =
+proc getDefaultBackgroundColor*(): wColor =
   ## Get the default background color based on current dark mode state
   if g_darkModeEnabled:
     result = wDarkModeBackground
   else:
     result = wLightModeBackground
 
-proc getDefaultForegroundColor*(): int =
+proc getDefaultForegroundColor*(): wColor =
   ## Get the default foreground color based on current dark mode state
   if g_darkModeEnabled:
     result = wDarkModeForeground
   else:
     result = wLightModeForeground
 
-proc getDefaultControlColor*(): int =
+proc getDefaultControlColor*(): wColor =
   ## Get the default control background color based on current dark mode state
   if g_darkModeEnabled:
     result = wDarkModeControl
