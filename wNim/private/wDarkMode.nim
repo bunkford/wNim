@@ -11,6 +11,17 @@
 include pragma
 import winim/[winstr, utils], winim/inc/[windef, winbase, winuser, uxtheme]
 
+# Constants and types that may not be in winim
+const
+  SPI_GETHIGHCONTRAST* = 0x0042
+  HCF_HIGHCONTRASTON* = 0x00000001
+
+type
+  HIGHCONTRAST* {.pure.} = object
+    cbSize*: UINT
+    dwFlags*: DWORD
+    lpszDefaultScheme*: LPWSTR
+
 type
   PreferredAppMode* = enum
     ## Preferred app mode for dark mode support (Windows 10 1903+)
@@ -92,7 +103,7 @@ var
 
 proc isHighContrast*(): bool =
   ## Check if Windows is using high contrast mode
-  var highContrast = HIGHCONTRAST(cbSize: sizeof(HIGHCONTRAST).cint)
+  var highContrast = HIGHCONTRAST(cbSize: sizeof(HIGHCONTRAST).UINT, lpszDefaultScheme: nil)
   if SystemParametersInfo(SPI_GETHIGHCONTRAST, sizeof(HIGHCONTRAST).UINT, addr highContrast, 0) != 0:
     result = (highContrast.dwFlags and HCF_HIGHCONTRASTON) != 0
   else:
