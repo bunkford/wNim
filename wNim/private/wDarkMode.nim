@@ -189,7 +189,7 @@ proc initDarkMode*(): bool =
   
   var major, minor: DWORD
   RtlGetNtVersionNumbers(addr major, addr minor, addr g_buildNumber)
-  g_buildNumber = g_buildNumber and (not 0xF0000000'u32)
+  g_buildNumber = g_buildNumber and DWORD(not 0xF0000000'u32)
   
   # Check if Windows 10 with dark mode support
   if major < 10 or not checkBuildNumber(g_buildNumber):
