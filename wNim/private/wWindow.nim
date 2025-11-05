@@ -904,16 +904,24 @@ proc updateThemeColorsRecursive*(self: wWindow, forceDark: int = -1) {.validate.
     let currentLightFg = wLightModeForeground
     
     # Update background if it matches the opposite theme's default
-    if isDark and (self.mBackgroundColor == wWhite or self.mBackgroundColor == currentLightBg):
-      self.backgroundColor = getDefaultBackgroundColor()
-    elif not isDark and (self.mBackgroundColor == currentDarkBg):
-      self.backgroundColor = wWhite
+    if isDark:
+      # Switching to dark mode: update if using light mode defaults
+      if self.mBackgroundColor == currentLightBg:
+        self.backgroundColor = currentDarkBg
+    else:
+      # Switching to light mode: update if using dark mode defaults
+      if self.mBackgroundColor == currentDarkBg:
+        self.backgroundColor = currentLightBg
     
     # Update foreground if it matches the opposite theme's default
-    if isDark and (self.mForegroundColor == wBlack or self.mForegroundColor == currentLightFg):
-      self.foregroundColor = getDefaultForegroundColor()
-    elif not isDark and (self.mForegroundColor == currentDarkFg):
-      self.foregroundColor = wBlack
+    if isDark:
+      # Switching to dark mode: update if using light mode defaults
+      if self.mForegroundColor == currentLightFg:
+        self.foregroundColor = currentDarkFg
+    else:
+      # Switching to light mode: update if using dark mode defaults
+      if self.mForegroundColor == currentDarkFg:
+        self.foregroundColor = currentLightFg
     
     # Recursively update all children
     for child in self.mChildren:
@@ -2363,15 +2371,15 @@ proc initVerbosely(self: wWindow, parent: wWindow = nil, id: wCommandID = 0,
     if bgColor == wDefaultColor:
       # Use dark mode colors if dark mode is enabled
       if isDarkModeSupported() and isDarkModeEnabled():
-        bgColor = getDefaultBackgroundColor()
+        bgColor = wDarkModeBackground
       else:
-        bgColor = wWhite
+        bgColor = wLightModeBackground
     if fgColor == wDefaultColor:
       # Use dark mode colors if dark mode is enabled
       if isDarkModeSupported() and isDarkModeEnabled():
-        fgColor = getDefaultForegroundColor()
+        fgColor = wDarkModeForeground
       else:
-        fgColor = wBlack
+        fgColor = wLightModeForeground
   else:
     if bgColor == wDefaultColor: bgColor = parent.mBackgroundColor
     if fgColor == wDefaultColor: fgColor = parent.mForegroundColor
