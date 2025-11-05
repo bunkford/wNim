@@ -430,7 +430,13 @@ proc wFrame_OnSettingChange(event: wEvent) =
   let self = wBase.wFrame event.mWindow
   if isColorSchemeChangeMessage(event.mMsg, event.mLparam):
     # Update dark mode status when color scheme changes
+    wDarkMode.updateDarkModeStatus()
+    
+    # Update title bar
     self.refreshDarkMode()
+    
+    # Automatically update all child controls to match new theme
+    self.updateThemeColorsRecursive()
 
 wClass(wFrame of wWindow):
 

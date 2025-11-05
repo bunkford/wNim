@@ -260,3 +260,36 @@ proc updateDarkModeStatus*() =
   ## Update the dark mode enabled status based on current system settings
   if g_darkModeSupported and not g_ShouldAppsUseDarkMode.isNil:
     g_darkModeEnabled = g_ShouldAppsUseDarkMode() and not isHighContrast()
+
+# Dark mode color scheme constants
+const
+  # Dark mode colors
+  wDarkModeBackground* = 0x202020      # Dark gray background
+  wDarkModeForeground* = 0xFFFFFF      # White text
+  wDarkModeControl* = 0x2D2D2D         # Slightly lighter gray for controls
+  
+  # Light mode colors  
+  wLightModeBackground* = 0xF0F0F0     # Light gray background
+  wLightModeForeground* = 0x000000     # Black text
+  wLightModeControl* = 0xFFFFFF        # White for controls
+
+proc getDefaultBackgroundColor*(): int =
+  ## Get the default background color based on current dark mode state
+  if g_darkModeEnabled:
+    result = wDarkModeBackground
+  else:
+    result = wLightModeBackground
+
+proc getDefaultForegroundColor*(): int =
+  ## Get the default foreground color based on current dark mode state
+  if g_darkModeEnabled:
+    result = wDarkModeForeground
+  else:
+    result = wLightModeForeground
+
+proc getDefaultControlColor*(): int =
+  ## Get the default control background color based on current dark mode state
+  if g_darkModeEnabled:
+    result = wDarkModeControl
+  else:
+    result = wLightModeControl

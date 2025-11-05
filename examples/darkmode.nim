@@ -6,27 +6,13 @@
 #====================================================================
 
 ## This example demonstrates comprehensive Windows 10 dark mode support in wNim.
-## It shows how to apply dark mode to both the title bar and client area controls.
-## Dark mode for the title bar is automatically enabled if the system is using dark theme.
+## Dark mode is now AUTOMATICALLY applied to both the title bar and client area controls.
+## The colors automatically change when the system theme changes.
 
 import wNim
 
-# Dark mode color scheme constants
-const
-  # Dark mode colors
-  DarkBackground = 0x202020      # Dark gray background
-  DarkForeground = 0xFFFFFF      # White text
-  DarkControlBg = 0x2D2D2D       # Slightly lighter gray for controls
-  DarkButtonBg = 0x3D3D3D        # Button background
-  
-  # Light mode colors
-  LightBackground = 0xF0F0F0     # Light gray background
-  LightForeground = 0x000000     # Black text
-  LightControlBg = 0xFFFFFF      # White for controls
-  LightButtonBg = 0xE1E1E1       # Light button background
-
 let app = App(wSystemDpiAware)
-let frame = Frame(title="wNim Dark Mode Demo - Comprehensive", size=(600, 500))
+let frame = Frame(title="wNim Dark Mode Demo - Automatic Theming", size=(600, 500))
 
 # Check if dark mode is supported
 if app.isDarkModeSupported():
@@ -38,20 +24,20 @@ if app.isDarkModeSupported():
 else:
   echo "Dark mode is not supported (requires Windows 10 build 17763+)"
 
-# Create a scrollable panel for controls
+# Create a panel for controls - colors are automatically set based on dark mode
 let panel = Panel(frame, style=wBorderSunken)
 
 # Header text
 let headerText = StaticText(panel, 
-  label="Dark Mode Demo - Comprehensive Controls",
+  label="Dark Mode Demo - Automatic Theming",
   pos=(20, 10))
 
 # Description
 let descText1 = StaticText(panel, 
-  label="This example demonstrates dark mode support for various controls.",
+  label="This example demonstrates AUTOMATIC dark mode support for all controls.",
   pos=(20, 35))
 let descText2 = StaticText(panel, 
-  label="The title bar and client area colors change based on the theme.",
+  label="Change Windows theme and all colors update automatically!",
   pos=(20, 55))
 
 # Buttons section
@@ -105,60 +91,30 @@ let toggleButton = Button(panel, label="Toggle Dark/Light Mode",
 # Status information
 let statusText = StaticText(panel, label="", pos=(230, 430))
 
-# Variable to track current mode (initialize based on system settings)
-var useDarkMode = app.isDarkModeEnabled()
+# Update status display
+proc updateStatus() =
+  if app.isDarkModeSupported():
+    if app.isDarkModeEnabled():
+      statusText.label = "Mode: Dark (Automatic)"
+    else:
+      statusText.label = "Mode: Light (Automatic)"
+  else:
+    statusText.label = "Dark mode not supported"
 
-# Procedure to apply theme colors to all controls
-proc applyTheme(isDark: bool) =
-  let bgColor = if isDark: DarkBackground else: LightBackground
-  let fgColor = if isDark: DarkForeground else: LightForeground
-  let controlBg = if isDark: DarkControlBg else: LightControlBg
-  
-  # Apply to panel
-  panel.backgroundColor = bgColor
-  panel.foregroundColor = fgColor
-  
-  # Apply to all static texts
-  for control in [headerText, descText1, descText2, buttonLabel, checkLabel, 
-                  radioLabel, textLabel, comboLabel, listLabel, sliderLabel, 
-                  gaugeLabel, statusText]:
-    control.backgroundColor = bgColor
-    control.foregroundColor = fgColor
-  
-  # Apply to checkboxes
-  for control in [checkbox1, checkbox2, checkbox3]:
-    control.backgroundColor = bgColor
-    control.foregroundColor = fgColor
-  
-  # Apply to radio buttons
-  for control in [radio1, radio2, radio3]:
-    control.backgroundColor = bgColor
-    control.foregroundColor = fgColor
-  
-  # Apply to text control
-  textCtrl.backgroundColor = controlBg
-  textCtrl.foregroundColor = fgColor
-  
-  # Apply to combo box
-  comboBox.backgroundColor = controlBg
-  comboBox.foregroundColor = fgColor
-  
-  # Apply to list box
-  listBox.backgroundColor = controlBg
-  listBox.foregroundColor = fgColor
-  
-  # Update title bar
-  frame.enableDarkMode(isDark)
-  
-  # Update status
-  statusText.label = if isDark: "Mode: Dark" else: "Mode: Light"
-  
-  echo "Theme applied: ", if isDark: "Dark Mode" else: "Light Mode"
-
-# Toggle button handler
+# Toggle button handler - toggles dark mode and the framework updates colors automatically
 toggleButton.wEvent_Button do ():
-  useDarkMode = not useDarkMode
-  applyTheme(useDarkMode)
+  # Toggle between dark and light mode
+  let newMode = not app.isDarkModeEnabled()
+  frame.enableDarkMode(newMode)
+  
+  # Manually update the app's dark mode status
+  # (Note: In a real app, this would come from WM_SETTINGCHANGE automatically)
+  if newMode != app.isDarkModeEnabled():
+    # Simulate theme change by recursively updating colors
+    frame.updateThemeColorsRecursive()
+  
+  updateStatus()
+  echo "Toggled to: ", if newMode: "Dark Mode" else: "Light Mode"
 
 # Button click events for demonstration
 button1.wEvent_Button do ():
@@ -190,8 +146,11 @@ slider.wEvent_Slider do ():
   gauge.value = slider.value
   echo "Slider value: ", slider.value
 
-# Apply initial theme based on system settings
-applyTheme(useDarkMode)
+# Initialize status display
+updateStatus()
+
+# Note: Colors are automatically set based on dark mode state!
+# No manual color setting needed - the framework handles it automatically.
 
 frame.center()
 frame.show()

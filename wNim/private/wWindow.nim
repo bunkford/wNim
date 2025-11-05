@@ -53,7 +53,7 @@
 
 include pragma
 import macros, tables, lists, memlib/rtlib
-import wBase, wUtils, wDataObject, gdiobjects/[wFont, wBrush, wCursor]
+import wBase, wUtils, wDataObject, wDarkMode, gdiobjects/[wFont, wBrush, wCursor]
 
 # For recursive module dependencies.
 proc screenToClient*(self: wWindow, pos: wPoint): wPoint
@@ -880,6 +880,35 @@ method setBackgroundColor*(self: wWindow, color: wColor) {.base, property.} =
     self.mBackgroundBrush = Brush(color)
 
   self.refresh()
+
+proc updateThemeColorsRecursive*(self: wWindow) {.validate.} =
+  ## Update colors for this window and all children based on current dark mode state.
+  ## This is called automatically when system theme changes.
+  if isDarkModeSupported():
+    let isDark = isDarkModeEnabled()
+    
+    # Only update if window is using default colors (checking against current dark/light defaults)
+    # This preserves any custom colors set by the application
+    let currentDarkBg = wDarkModeBackground
+    let currentLightBg = wLightModeBackground
+    let currentDarkFg = wDarkModeForeground
+    let currentLightFg = wLightModeForeground
+    
+    # Update background if it matches the opposite theme's default
+    if isDark and self.mBackgroundColor == wWhite or self.mBackgroundColor == currentLightBg:
+      self.backgroundColor = getDefaultBackgroundColor()
+    elif not isDark and (self.mBackgroundColor == currentDarkBg):
+      self.backgroundColor = wWhite
+    
+    # Update foreground if it matches the opposite theme's default
+    if isDark and self.mForegroundColor == wBlack or self.mForegroundColor == currentLightFg:
+      self.foregroundColor = getDefaultForegroundColor()
+    elif not isDark and (self.mForegroundColor == currentDarkFg):
+      self.foregroundColor = wBlack
+    
+    # Recursively update all children
+    for child in self.mChildren:
+      child.updateThemeColorsRecursive()
 
 proc setId*(self: wWindow, id: wCommandID)  {.validate, property, inline.} =
   ## Sets the identifier of the window.
@@ -2322,8 +2351,18 @@ proc initVerbosely(self: wWindow, parent: wWindow = nil, id: wCommandID = 0,
     fgColor = fgColor
 
   if parent.isNil:
-    if bgColor == wDefaultColor: bgColor = wWhite
-    if fgColor == wDefaultColor: fgColor = wBlack
+    if bgColor == wDefaultColor:
+      # Use dark mode colors if dark mode is enabled
+      if isDarkModeSupported() and isDarkModeEnabled():
+        bgColor = getDefaultBackgroundColor()
+      else:
+        bgColor = wWhite
+    if fgColor == wDefaultColor:
+      # Use dark mode colors if dark mode is enabled
+      if isDarkModeSupported() and isDarkModeEnabled():
+        fgColor = getDefaultForegroundColor()
+      else:
+        fgColor = wBlack
   else:
     if bgColor == wDefaultColor: bgColor = parent.mBackgroundColor
     if fgColor == wDefaultColor: fgColor = parent.mForegroundColor
