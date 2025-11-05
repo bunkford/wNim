@@ -881,11 +881,15 @@ method setBackgroundColor*(self: wWindow, color: wColor) {.base, property.} =
 
   self.refresh()
 
-proc updateThemeColorsRecursive*(self: wWindow) {.validate.} =
-  ## Update colors for this window and all children based on current dark mode state.
+proc updateThemeColorsRecursive*(self: wWindow, forceDark: int = -1) {.validate.} =
+  ## Update colors for this window and all children based on dark mode state.
   ## This is called automatically when system theme changes.
+  ## 
+  ## Args:
+  ##   forceDark: If -1 (default), uses current system dark mode state.
+  ##              If 0, forces light mode colors. If 1, forces dark mode colors.
   if isDarkModeSupported():
-    let isDark = isDarkModeEnabled()
+    let isDark = if forceDark == -1: isDarkModeEnabled() elif forceDark == 1: true else: false
     
     # Only update if window is using default colors (checking against current dark/light defaults)
     # This preserves any custom colors set by the application
@@ -895,20 +899,20 @@ proc updateThemeColorsRecursive*(self: wWindow) {.validate.} =
     let currentLightFg = wLightModeForeground
     
     # Update background if it matches the opposite theme's default
-    if isDark and self.mBackgroundColor == wWhite or self.mBackgroundColor == currentLightBg:
+    if isDark and (self.mBackgroundColor == wWhite or self.mBackgroundColor == currentLightBg):
       self.backgroundColor = getDefaultBackgroundColor()
     elif not isDark and (self.mBackgroundColor == currentDarkBg):
       self.backgroundColor = wWhite
     
     # Update foreground if it matches the opposite theme's default
-    if isDark and self.mForegroundColor == wBlack or self.mForegroundColor == currentLightFg:
+    if isDark and (self.mForegroundColor == wBlack or self.mForegroundColor == currentLightFg):
       self.foregroundColor = getDefaultForegroundColor()
     elif not isDark and (self.mForegroundColor == currentDarkFg):
       self.foregroundColor = wBlack
     
     # Recursively update all children
     for child in self.mChildren:
-      child.updateThemeColorsRecursive()
+      child.updateThemeColorsRecursive(forceDark)
 
 proc setId*(self: wWindow, id: wCommandID)  {.validate, property, inline.} =
   ## Sets the identifier of the window.

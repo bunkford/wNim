@@ -92,29 +92,31 @@ let toggleButton = Button(panel, label="Toggle Dark/Light Mode",
 let statusText = StaticText(panel, label="", pos=(230, 430))
 
 # Update status display
+# Track manual mode override for demonstration
+var manualDarkMode = app.isDarkModeEnabled()
+
 proc updateStatus() =
   if app.isDarkModeSupported():
-    if app.isDarkModeEnabled():
-      statusText.label = "Mode: Dark (Automatic)"
-    else:
-      statusText.label = "Mode: Light (Automatic)"
+    statusText.label = "Current Mode: " & (if manualDarkMode: "Dark" else: "Light") & " (Demo Override)"
   else:
     statusText.label = "Dark mode not supported"
 
-# Toggle button handler - toggles dark mode and the framework updates colors automatically
+# Toggle button handler - demonstrates manual dark mode override for testing
+# Note: In production, theme changes happen automatically via Windows settings
 toggleButton.wEvent_Button do ():
-  # Toggle between dark and light mode
-  let newMode = not app.isDarkModeEnabled()
-  frame.enableDarkMode(newMode)
+  # Toggle manual mode
+  manualDarkMode = not manualDarkMode
   
-  # Manually update the app's dark mode status
-  # (Note: In a real app, this would come from WM_SETTINGCHANGE automatically)
-  if newMode != app.isDarkModeEnabled():
-    # Simulate theme change by recursively updating colors
-    frame.updateThemeColorsRecursive()
+  # Update title bar
+  frame.enableDarkMode(manualDarkMode)
+  
+  # Manually update all control colors
+  # Pass 1 for dark, 0 for light to override system settings
+  frame.updateThemeColorsRecursive(if manualDarkMode: 1 else: 0)
   
   updateStatus()
-  echo "Toggled to: ", if newMode: "Dark Mode" else: "Light Mode"
+  echo "Manual toggle to: ", if manualDarkMode: "Dark Mode" else: "Light Mode"
+  echo "Note: In production apps, theme changes automatically with Windows settings"
 
 # Button click events for demonstration
 button1.wEvent_Button do ():
